@@ -4,12 +4,12 @@ Una fila por riesgo. La columna «Caso de abuso» cita los issues con #n. El che
 
 | ID | Amenaza | STRIDE | Caso de abuso | Probabilidad | Impacto | Riesgo | Tratamiento |
 |:---|:---|:---|:---|:---|:---|:---|:---|
-| R-01 | Un usuario puede borrar labs personalizados sin que quede registro de quién lo hizo | R | #1 | 2 | 2 | 4 | Corregir |
-| R-02 | Un visitante inyecta SQL en el registro y extrae datos de las cuentas | I | #2 | 1 | 3 | 3 | Corregir |
-| R-03 | Un visitante cambia el rol en un campo oculto y obtiene privilegios que no le corresponden | T | #3 | 2 | 3 | 6 | Corregir |
-| R-04 | Un atacante abusa del login para actuar con más privilegios de los que debería tener | E | #4 | 1 | 3 | 3 | Mitigar |
-| R-05 | Una sesión abierta no expira y otra persona con acceso al dispositivo la usa | S | #5 | 2 | 2 | 4 | Mitigar |
-| R-06 | Las sesiones no se pueden invalidar, por lo que una cuenta capturada sigue siendo controloada por el atacante indefinidamente | S | #6 | 1 | 2 | 2 | Aceptar |
+| R-01 | Un usuario puede borrar labs personalizados sin que quede registro de quién lo hizo | R | #3 | 2 | 2 | 4 | Corregir |
+| R-02 | Un visitante inyecta SQL en el registro y extrae datos de las cuentas | I | #4 | 1 | 3 | 3 | Corregir |
+| R-03 | Un visitante cambia el rol en un campo oculto y obtiene privilegios que no le corresponden | T | #5 | 2 | 3 | 6 | Corregir |
+| R-04 | Un atacante abusa del login para actuar con más privilegios de los que debería tener | E | #6 | 1 | 3 | 3 | Mitigar |
+| R-05 | Una sesión abierta no expira y otra persona con acceso al dispositivo la usa | S | #7 | 2 | 2 | 4 | Mitigar |
+| R-06 | Las sesiones no se pueden invalidar, por lo que una cuenta capturada sigue siendo controloada por el atacante indefinidamente | S | #8 | 1 | 2 | 2 | Aceptar |
 
 
 ## Escala
