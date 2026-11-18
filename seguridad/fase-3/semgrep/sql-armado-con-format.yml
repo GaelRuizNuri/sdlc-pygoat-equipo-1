@@ -1,0 +1,12 @@
+rules:
+  - id: sql-armado-con-format
+    languages: [python]
+    severity: ERROR
+    message: >-
+      La consulta SQL se construye con .format(). Pase los valores como
+      parámetros de execute() para cumplir el requerimiento #12.
+    metadata:
+      requerimiento: "#12"
+      asvs: "1.2.4"
+      cwe: "CWE-89"
+    pattern: '$CURSOR.execute($PLANTILLA.format(...), ...)'

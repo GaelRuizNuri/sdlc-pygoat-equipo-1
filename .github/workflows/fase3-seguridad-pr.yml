@@ -1,0 +1,112 @@
+# Fase 3: copie este archivo a .github/workflows/fase3-seguridad-pr.yml y complete los TODO.
+# En esta fase el pipeline solo reporta: ningún hallazgo detiene el PR.
+# Excepción: si la prueba de su regla propia de Semgrep falla, el job falla.
+name: Fase 3 · Seguridad en PR
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  sast:
+    name: SAST con Semgrep
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+
+    steps:
+      - name: Descargar el repositorio
+        uses: actions/checkout@v7
+
+      - name: Configurar Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Instalar Semgrep CE
+        run: pip install semgrep==1.182.0
+
+      # Si falla una prueba de las reglas propias, el job falla.
+      - name: Probar las reglas propias
+        run: semgrep --test seguridad/fase-3/semgrep
+
+      - name: Escanear app/ con p/default y las reglas propias
+        run: |
+          mkdir -p reportes
+          semgrep scan app \
+            --config p/default \
+            --config seguridad/fase-3/semgrep \
+            --metrics off \
+            --sarif \
+            --output reportes/semgrep.sarif
+
+      - name: Guardar el reporte de Semgrep
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: reporte-semgrep
+          path: reportes/semgrep.sarif
+
+      # La publicación en Code scanning es opcional.
+      - name: Publicar el reporte de Semgrep en Code scanning
+        uses: github/codeql-action/upload-sarif@v4
+        continue-on-error: true
+        with:
+          sarif_file: reportes/semgrep.sarif
+          category: semgrep
+
+  secretos:
+    name: Secretos con Gitleaks
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Descargar el repositorio con todo el historial
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Buscar secretos en todo el historial
+        run: |
+          mkdir -p reportes
+          docker run --rm \
+            -u "$(id -u):$(id -g)" \
+            -v "$GITHUB_WORKSPACE:/repo" \
+            -w /repo \
+            ghcr.io/gitleaks/gitleaks:v8.30.1 \
+            git /repo \
+            --log-opts="--all" \
+            --report-format sarif \
+            --report-path /repo/reportes/gitleaks.sarif \
+            --redact \
+            --exit-code 0
+
+      - name: Guardar el reporte de Gitleaks
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: reporte-gitleaks
+          path: reportes/gitleaks.sarif
+
+  dependencias:
+    name: Dependencias nuevas con Dependency Review
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Descargar el repositorio
+        uses: actions/checkout@v7
+
+      - name: Revisar dependencias nuevas del PR
+        uses: actions/dependency-review-action@v5
+        with:
+          fail-on-severity: high
+          warn-only: true
