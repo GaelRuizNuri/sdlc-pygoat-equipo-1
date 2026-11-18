@@ -21,7 +21,7 @@ jobs:
       security-events: write
       id-token: write
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           persist-credentials: false
 
@@ -31,7 +31,7 @@ jobs:
           results_format: sarif
           publish_results: true
 
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           name: reporte-scorecard
           path: resultados.sarif
