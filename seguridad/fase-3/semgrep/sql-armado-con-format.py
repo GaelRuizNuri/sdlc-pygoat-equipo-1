@@ -4,3 +4,5 @@ def buscar(cursor, nombre):
 
     # ok: sql-armado-con-format
     cursor.execute("SELECT id FROM usuarios WHERE nombre = ?", (nombre,))
+
+# Correcion
