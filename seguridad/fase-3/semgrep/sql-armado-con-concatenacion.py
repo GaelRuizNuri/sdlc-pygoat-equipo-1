@@ -1,7 +1,7 @@
 def buscar_mal(cursor, texto):
     # ruleid: sql-armado-con-concatenacion
 
-    cursor.execute(f"SELECT * FROM comercios WHERE nombre LIKE '" + "%{texto}%'" )
+    #cursor.execute(f"SELECT * FROM comercios WHERE nombre LIKE '" + "%{texto}%'" )
     
     
 def buscar_bien(cursor, texto):
