@@ -21,10 +21,10 @@ jobs:
 
     steps:
       - name: Descargar el repositorio
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
       - name: Configurar Python
-        uses: actions/setup-python@v7
+        uses: actions/setup-python@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           python-version: "3.12"
 
@@ -46,7 +46,7 @@ jobs:
             --output reportes/semgrep.sarif
 
       - name: Guardar el reporte de Semgrep
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@3d3c42e5aac5ba805825da76410c181273ba90b1
         if: always()
         with:
           name: reporte-semgrep
@@ -68,7 +68,7 @@ jobs:
 
     steps:
       - name: Descargar el repositorio con todo el historial
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           fetch-depth: 0
 
@@ -88,7 +88,7 @@ jobs:
             --exit-code 0
 
       - name: Guardar el reporte de Gitleaks
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@3d3c42e5aac5ba805825da76410c181273ba90b1
         if: always()
         with:
           name: reporte-gitleaks
@@ -103,7 +103,7 @@ jobs:
 
     steps:
       - name: Descargar el repositorio
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
       - name: Revisar dependencias nuevas del PR
         uses: actions/dependency-review-action@v5
