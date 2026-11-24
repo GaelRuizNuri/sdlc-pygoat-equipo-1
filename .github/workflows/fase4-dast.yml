@@ -17,12 +17,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #v7
 
-      - uses: docker/setup-buildx-action@v4
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 #v4
 
       - name: Construir la imagen de la app
-        uses: docker/build-push-action@v7
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc #v7
         with:
           context: app
           load: true
@@ -37,16 +37,12 @@ jobs:
         run: |
           mkdir -p reportes && chmod 777 reportes
           source lab/app.env
-          echo "Objetivo: http://localhost:$APP_PUERTO (modo $ZAP_MODO)"
-          # TODO: ejecute ZAP con la imagen ghcr.io/zaproxy/zaproxy:stable.
-          #   Modo baseline: zap-baseline.py -t http://localhost:$APP_PUERTO
-          #   Modo api:      zap-api-scan.py -t http://localhost:$APP_PUERTO$ZAP_OPENAPI -f openapi
-          #                  -O http://localhost:$APP_PUERTO   (si la especificación no declara servers)
-          #   Modo graphql:  zap-api-scan.py -t http://localhost:$APP_PUERTO$ZAP_GRAPHQL -f graphql
-          # Use --network host, monte reportes/ en /zap/wrk, genere zap.html y zap.json
-          # y agregue -I para que las alertas no detengan el job.
+          docker run --rm --network host \
+            -v "$PWD/reportes:/zap/wrk:rw" \
+            ghcr.io/zaproxy/zaproxy:stable zap-baseline.py \
+            -t "http://localhost:$APP_PUERTO" -r zap.html -J zap.json -I
 
-      - uses: actions/setup-python@v7
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 #v7
         with:
           python-version: "3.12"
 
@@ -62,7 +58,7 @@ jobs:
         if: always()
         run: bash lab/app.sh logs > reportes/app.log 2>&1 || true
 
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 #v7
         if: always()
         with:
           name: reporte-dast
