@@ -13,9 +13,69 @@ Ejecución local, con la app levantada (bash lab/app.sh levantar):
 """
 
 import pytest
+import random
+import string
+import time
 
+def registro(sesion, app_url):
+  usuario = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
+  clave = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
+  sesion.get(f"{app_url}/register")
+  datos = {
+    "username": usuario,
+    "email": f"{usuario}@ejemplo.com",
+    "password1": clave,
+    "password2": clave,
+    "csrfmiddlewaretoken": sesion.cookies.get("csrftoken"),
+  }
+  info = sesion.post(f"{app_url}/register", data=datos, allow_redirects=False)
+  assert info.status_code == 302, f"no se pudo registrar ({info.status_code}) (error NO relacionado al ataque)"
+  sesion.cookies.clear()
+  return usuario, clave
 
-@pytest.mark.caso_abuso(0)  # TODO: número del issue del caso de abuso
-def test_plantilla(app_url, sesion):
-    """Dado ... Cuando ... Entonces ..."""
-    pytest.skip("Plantilla: reemplácela por una prueba escrita desde un caso de abuso")
+def iniciar_sesion(sesion, app_url, usuario, clave):
+  sesion.get(f"{app_url}/login/")
+  datos = {
+    "username": usuario,
+    "password": clave,
+    "csrfmiddlewaretoken": sesion.cookies.get("csrftoken"),
+  }
+  info = sesion.post(f"{app_url}/login/", data=datos, allow_redirects=False)
+  assert info.status_code == 302, f"no se pudo iniciar sesión ({r.status_code}) (error NO relacionado al ataque)"
+
+@pytest.mark.caso_abuso(8)  
+def test_no_permite_cierre_de_sesion(app_url, sesion):
+  """Dado un usario con sesión iniciada 
+  Cuando solicitar finalizar la sesión 
+  Entonces el servidor rechaza la solicitud y no cierra la sesión"""
+  usuario, clave = registro(sesion, app_url)
+  iniciar_sesion(sesion, app_url, usuario, clave)
+  mensaje = sesion.get(f"{app_url}/logout/", allow_redirects=False)
+  assert mensaje.status_code == 405, f"No se cerró la sesión apropiadamente ({mensaje.status_code})"
+
+@pytest.mark.caso_abuso(4)  
+def test_comportamiento_apropiado_SQLi(app_url, sesion):
+  """Dado un atacante en el formulario de registro
+  Cuando intenta un SQLi en el nombre de usuario
+  Entonces el rechaza el intento o acepta el texto"""
+  sesion.get(f"{app_url}/register")
+  datos = {
+    "username": "admin' OR '1'='1' --",
+    "email": "malvado@ejemplo.com",
+    "password1": "clave",
+    "password2": "clave",
+    "csrfmiddlewaretoken": sesion.cookies.get("csrftoken"),
+  }
+  mensaje = sesion.post(f"{app_url}/register", data=datos, allow_redirects=False)
+  assert mensaje.status_code < 500, f"Ante un intento de SQLi se retornó {r.status_code}"
+
+@pytest.mark.caso_abuso(7)  
+def test_tiempo_limite_por_inactividad(app_url, sesion):
+  """Dado un usuario con sesión iniciada
+  Cuando ha sido inactivo por más de 40 minutos
+  Entonces se cierra la sesión"""
+  usuario, clave = registro(sesion, app_url)
+  iniciar_sesion(sesion, app_url, usuario, clave)
+  cookie = next(c for c in sesion.cookies if c.name == "sessionid")
+  vigencia = cookie.expires - time.time()
+  assert vigencia <= 40 * 60, "La sesión se mantiene abierta más de 40 minutos"
