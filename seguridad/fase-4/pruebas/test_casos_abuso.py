@@ -41,7 +41,7 @@ def iniciar_sesion(sesion, app_url, usuario, clave):
     "csrfmiddlewaretoken": sesion.cookies.get("csrftoken"),
   }
   info = sesion.post(f"{app_url}/login/", data=datos, allow_redirects=False)
-  assert info.status_code == 302, f"no se pudo iniciar sesión ({r.status_code}) (error NO relacionado al ataque)"
+  assert info.status_code == 302, f"no se pudo iniciar sesión ({info.status_code}) (error NO relacionado al ataque)"
 
 @pytest.mark.caso_abuso(8)  
 def test_no_permite_cierre_de_sesion(app_url, sesion):
@@ -67,8 +67,9 @@ def test_comportamiento_apropiado_SQLi(app_url, sesion):
     "csrfmiddlewaretoken": sesion.cookies.get("csrftoken"),
   }
   mensaje = sesion.post(f"{app_url}/register", data=datos, allow_redirects=False)
-  assert mensaje.status_code < 500, f"Ante un intento de SQLi se retornó {r.status_code}"
+  assert mensaje.status_code < 500, f"Ante un intento de SQLi se retornó {mensaje.status_code}"
 
+@pytest.mark.corregida
 @pytest.mark.caso_abuso(7)  
 def test_tiempo_limite_por_inactividad(app_url, sesion):
   """Dado un usuario con sesión iniciada
