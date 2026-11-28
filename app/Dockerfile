@@ -25,6 +25,7 @@ FROM python:3.11-slim-bookworm
 
 # hadolint ignore=DL3008
 RUN apt-get update \
+    && apt-get upgrade -y \
     && apt-get install --no-install-recommends -y \
         curl \
         libpq5 \
@@ -35,7 +36,8 @@ WORKDIR /app
 
 COPY --from=builder /wheels /wheels
 RUN pip install --no-cache-dir /wheels/* \
-    && rm -rf /wheels
+    && rm -rf /wheels \
+    && pip uninstall -y setuptools wheel
 
 COPY . /app/
 
