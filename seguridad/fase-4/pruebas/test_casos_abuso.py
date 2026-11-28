@@ -92,3 +92,17 @@ def test_error_no_expone_informacion_interna(app_url, sesion):
   Entonces la respuesta no muestra la página de depuración de Django"""
   respuesta = sesion.get(f"{app_url}{RUTA_INEXISTENTE}", allow_redirects=False)
   assert MARCADOR_MODO_DEPURACION not in respuesta.text, "La respuesta de error expone la página de depuración"
+  
+RUTA_LOGIN = "/login/"
+NOMBRE_CABECERA_CSP = "Content-Security-Policy"
+DIRECTIVA_BASE_CSP = "default-src"
+
+@pytest.mark.corregida
+@pytest.mark.caso_abuso(4)
+def test_cabecera_csp_presente(app_url, sesion):
+  """Dado un visitante de la página de login
+  Cuando la solicita
+  Entonces la respuesta incluye una política Content-Security-Policy con directiva base"""
+  respuesta = sesion.get(f"{app_url}{RUTA_LOGIN}", allow_redirects=False)
+  politica = respuesta.headers.get(NOMBRE_CABECERA_CSP, "")
+  assert DIRECTIVA_BASE_CSP in politica, "Falta la cabecera Content-Security-Policy"

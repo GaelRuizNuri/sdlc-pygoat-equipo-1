@@ -207,3 +207,15 @@ CSRF_COOKIE_SAMESITE = "Lax"
 MINUTOS_INACTIVIDAD_MAXIMA = 30
 SESSION_COOKIE_AGE = MINUTOS_INACTIVIDAD_MAXIMA * 60
 SESSION_SAVE_EVERY_REQUEST = True
+
+MIDDLEWARE = [
+    "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "pygoat.middleware.ContentSecurityPolicyMiddleware",
+]
