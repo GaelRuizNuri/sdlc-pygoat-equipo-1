@@ -80,3 +80,15 @@ def test_tiempo_limite_por_inactividad(app_url, sesion):
   cookie = next(c for c in sesion.cookies if c.name == "sessionid")
   vigencia = cookie.expires - time.time()
   assert vigencia <= 40 * 60, "La sesión se mantiene abierta más de 40 minutos"
+
+RUTA_INEXISTENTE = "/ruta-que-no-existe-lab-fase-5/"
+MARCADOR_MODO_DEPURACION = "DEBUG = True"
+
+@pytest.mark.corregida
+@pytest.mark.caso_abuso(4)
+def test_error_no_expone_informacion_interna(app_url, sesion):
+  """Dado un visitante que pide una ruta inexistente
+  Cuando la app responde con un error
+  Entonces la respuesta no muestra la página de depuración de Django"""
+  respuesta = sesion.get(f"{app_url}{RUTA_INEXISTENTE}", allow_redirects=False)
+  assert MARCADOR_MODO_DEPURACION not in respuesta.text, "La respuesta de error expone la página de depuración"
